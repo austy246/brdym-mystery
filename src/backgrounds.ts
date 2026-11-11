@@ -6,7 +6,7 @@ import dvur from './bg/dvur';
 import sbirka from './bg/sbirka';
 import zbrojnice from './bg/zbrojnice';
 import zbrojnice2 from './bg/zbrojnice2';
-import { OL, ol, wrap, rep, shade, grad, person, patrik, carpet, noise, nid } from './art';
+import { OL, ol, wrap, rep, shade, grad, person, patrik, checker, noise, nid } from './art';
 import type { PersonOpts } from './art';
 
 /* ------------------------------------------------------------------ */
@@ -41,7 +41,7 @@ const office = wrap(`
 
 <!-- podlaha / koberec -->
 <polygon points="0,236 560,236 640,300 640,360 0,360" fill="url(#ocar)"/>
-<g clip-path="url(#ofloor)">${carpet(0, 640, 238, 360, '#e0585c')}
+<g clip-path="url(#ofloor)">${checker('#3a1d7a', '#f1eef6', 238)}
   <polygon points="250,238 420,238 520,360 140,360" fill="#fff2c0" opacity=".1"/>
 </g>
 <path d="M0 236H560L640 300" stroke="#3b2214" stroke-width="1.6" fill="none"/>
@@ -341,7 +341,7 @@ ${rep(14, (i) => `<path d="M${i * 50 - 20} 264L${i * 90 - 210} 360" stroke="#746
 <path d="M262 208q58-96 116 0" stroke="#fff" stroke-width="4" fill="none" stroke-dasharray="9 7" opacity=".9"/>
 <text x="320" y="254" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#3a3a3a">ROHLÍK 1957</text>
 <!-- páska -->
-<path d="M214 204l212 46M214 250l212-46" stroke="#f4cc00" stroke-width="7" ${ol}/>
+<path d="M214 204l212 46M214 250l212-46" stroke="#f4cc00" stroke-width="7" stroke-linecap="round"/>
 <path d="M214 204l212 46M214 250l212-46" stroke="#3b2214" stroke-width="3" stroke-dasharray="8 12"/>
 <!-- ukazatel ke sběrateli -->
 <rect x="22" y="276" width="6" height="76" fill="#6a3b1a" ${OL}/>

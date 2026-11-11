@@ -3,6 +3,7 @@ import { settings, saveSettings, click, previewVolume, stopVoice } from './audio
 import { mapBackground } from './backgrounds';
 import { h } from './dom';
 import { Engine, hasSave } from './engine';
+import { pixelView } from './render';
 
 const app = document.getElementById('app') as HTMLElement;
 
@@ -22,9 +23,13 @@ function startGame(resume: boolean): void {
 
 function showMenu(): void {
   const screen = h('div', 'screen menuscreen');
+  const mapEl = h('div', 'map');
+  const mv = pixelView(320);
+  mapEl.append(mv.el);
+  mv.set(mapBackground);
   const menu = h('div', 'menu');
   menu.append(
-    h('div', 'map', mapBackground),
+    mapEl,
     h('p', 'subtitle', 'Detektivní adventura'),
     h('h1', 'title', 'Záhada<br>v Brdýmově'),
   );

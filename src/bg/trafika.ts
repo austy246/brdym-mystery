@@ -1,4 +1,4 @@
-import { wrap, person, carpet, rep, noise, OL, ol } from '../art';
+import { wrap, person, checker, rep, noise, OL, ol } from '../art';
 
 /**
  * TRAFIKA paní Dvořáčkové.
@@ -60,7 +60,7 @@ ${rep(21, (i) => `<path d="M${i * 28} 178v62" stroke="#2f6e62" stroke-width="1.2
 
 <!-- podlaha: linoleum -->
 <polygon points="0,240 580,240 640,300 640,360 0,360" fill="url(#tfl)"/>
-<g clip-path="url(#tfloor)">${carpet(0, 640, 242, 360, '#f4d9a8')}
+<g clip-path="url(#tfloor)">${checker('#3a1d7a', '#f1eef6', 240)}
   <polygon points="250,244 440,244 520,360 150,360" fill="#fff6c8" opacity=".1"/>
 </g>
 <path d="M0 240H580L640 300" stroke="#3a1c0c" stroke-width="1.6" fill="none"/>

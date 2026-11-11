@@ -1,4 +1,4 @@
-import { wrap, person, carpet, rep, noise, OL, ol } from '../art';
+import { wrap, person, checker, rep, noise, OL, ol } from '../art';
 
 /**
  * OBECNÍ ÚŘAD – kancelář starosty Pelikána.
@@ -52,7 +52,7 @@ ${rep(7, (i) => `<rect x="${12 + i * 82}" y="186" width="64" height="46" rx="2" 
 
 <!-- podlaha: zelený koberec -->
 <polygon points="0,240 580,240 640,300 640,360 0,360" fill="url(#ucar)"/>
-<g clip-path="url(#ufloor)">${carpet(0, 640, 242, 360, '#58a07e')}
+<g clip-path="url(#ufloor)">${checker('#1f6a4a', '#eef0d8', 240)}
   <polygon points="290,242 430,242 560,360 180,360" fill="#fff2b0" opacity=".08"/>
 </g>
 <path d="M0 240H580L640 300" stroke="#1c1408" stroke-width="1.6" fill="none"/>

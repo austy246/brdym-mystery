@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');
 * { box-sizing: border-box; }
 
 html, body {
@@ -48,7 +49,7 @@ html, body {
 }
 
 .menu .map { position: absolute; inset: 0; z-index: 0; }
-.menu .map svg { width: 100%; height: 100%; display: block; }
+.menu .map svg, .menu .map canvas { width: 100%; height: 100%; display: block; }
 .menu > *:not(.map) { position: relative; z-index: 1; }
 
 /* velké kulaté písmo s hnědým obrysem */
@@ -116,7 +117,8 @@ input[type="range"] { width: 100%; accent-color: #f0c869; }
 /* ---- Scéna ---- */
 .stage { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; overflow: hidden; }
 .scene { position: absolute; inset: 0; }
-.scene svg { width: 100%; height: 100%; display: block; }
+.scene svg, .scene canvas { width: 100%; height: 100%; display: block; }
+canvas.pixel { image-rendering: pixelated; object-fit: cover; }
 .car { animation: bump .5s ease-in-out infinite alternate; }
 @keyframes bump { to { transform: translateY(-3px); } }
 .poles { animation: scroll 1.6s linear infinite; }
@@ -133,7 +135,7 @@ input[type="range"] { width: 100%; accent-color: #f0c869; }
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .05) 0 1px, transparent 1px 3px);
+  background: none;
   mix-blend-mode: multiply;
 }
 
@@ -166,17 +168,41 @@ input[type="range"] { width: 100%; accent-color: #f0c869; }
 }
 @keyframes toastin { from { transform: translateY(-8px); opacity: 0; } }
 
-.topbar { position: absolute; top: .6rem; right: .6rem; z-index: 7; }
-.topbar .btn { min-width: 0; padding: .3em .9em; font-size: .9rem; }
+.topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 7; display: flex; justify-content: space-between; pointer-events: none; }
+.topbar > * { pointer-events: auto; }
+.redbtn {
+  font-family: "Chewy", "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", sans-serif;
+  font-size: clamp(1.1rem, 3.4vw, 2.1rem);
+  letter-spacing: .03em;
+  color: #fff2a8;
+  text-shadow: 0 .06em 0 #5a1010;
+  padding: .12em .9em;
+  cursor: pointer;
+  border: 3px solid #e8a8a0;
+  border-color: #f0b0a8 #7a1018 #7a1018 #f0b0a8;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 2px, transparent 2px 5px),
+    linear-gradient(#d42a2a, #a01418);
+  box-shadow: 0 0 0 2px #2a0608;
+}
+.redbtn:hover { filter: brightness(1.18); }
+.invpanel {
+  position: absolute; top: 14%; right: 1.5%; z-index: 8; display: none;
+  max-width: 60%; padding: .6rem; background: #2a0f18e6; border: 3px solid #e8a8a0;
+  box-shadow: 0 0 0 2px #2a0608;
+}
+.invpanel.open { display: block; }
+.invpanel .inv { max-width: 100%; justify-content: flex-start; }
+.invpanel .slot { width: clamp(2.6rem, 6vw, 3.6rem); }
 
 /* ---- Spodní lišta ---- */
 .bar {
   position: relative;
   min-height: 11rem;
   padding: .5rem 1rem .7rem;
-  background: linear-gradient(#4a3720, #2a1e10);
-  border-top: 4px solid #c99a3b;
-  box-shadow: inset 0 3px 0 #6b4a14;
+  background: linear-gradient(#5a1a24, #2e0c14);
+  border-top: 4px solid #e8a8a0;
+  box-shadow: inset 0 3px 0 #8a2a30;
   display: flex;
   flex-direction: column;
   gap: .35rem;

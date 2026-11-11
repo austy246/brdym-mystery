@@ -1,11 +1,12 @@
 /**
- * Kreslené scény ve stylu adventur z konce 90. let: sytá teplá paleta, měkké
- * stínování místo tlustých obrysů, místnosti v perspektivě, hubení postavy
- * s velkými nosy a očima. Každá scéna má rozměr 640 x 360.
+ * Scény ve stylu předrenderované 3D grafiky Poldy 1 (1998): sytá paleta,
+ * hladké stínování bez obrysů, místnosti v širokoúhlé perspektivě, šachovnicové
+ * podlahy, hubení shrbení lidé s obřími nosy. Každá scéna má rozměr 640 x 360;
+ * výsledný „pixelový“ vzhled (256 barev, rozptyl, zrno) dělá render.ts.
  */
 
-export const OL = 'stroke="#3b2214" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"';
-export const ol = 'stroke="#3b2214" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"';
+export const OL = 'stroke="#1c0c30" stroke-opacity=".34" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round"';
+export const ol = 'stroke="#1c0c30" stroke-opacity=".24" stroke-width=".8" stroke-linejoin="round" stroke-linecap="round"';
 
 let uid = 0;
 export const nid = (p: string): string => `${p}${++uid}`;
@@ -36,7 +37,7 @@ export function grad(idv: string, base: string, vertical = true, light = 1.18, d
 /* ------------------------------------------------------------------ */
 
 export type HairStyle = 'short' | 'messy' | 'bald' | 'combover' | 'bun' | 'long';
-export type HatKind = 'fedora' | 'cap' | 'beret' | 'straw' | 'scarf' | 'none';
+export type HatKind = 'fedora' | 'police' | 'cap' | 'beret' | 'straw' | 'scarf' | 'none';
 
 export interface PersonOpts {
   x: number; // střed
@@ -67,6 +68,7 @@ export interface PersonOpts {
   medals?: boolean;
   redNose?: boolean;
   collarUp?: boolean;
+  eyes?: string;
 }
 
 export function person(o: PersonOpts): string {
@@ -79,18 +81,23 @@ export function person(o: PersonOpts): string {
   const hat = o.hat ?? 'none';
   const hatC = o.hatColor ?? '#55482c';
   const belly = o.belly ?? 0;
-  const nose = o.nose ?? 1;
-  const head = o.head ?? 1;
+  const nose = (o.nose ?? 1) * 1.3;
+  const head = (o.head ?? 1) * 0.9;
   const gid = nid('pg');
   const hid = nid('ph');
+  const skg = nid('sk');
+  const pg = nid('pt');
+  const nsg = nid('ns');
   const skinD = shade(skin, 0.84);
   const skinL = shade(skin, 1.1);
+  const noseCol = o.redNose ? '#e8806a' : skinL;
   const coatD = shade(coat, 0.7);
   const hairD = shade(hair, 0.6);
   const bw = 34 + belly; // přední hrana kabátu
   const bl = 36 + belly * 0.25; // zadní hrana
   const hemY = o.dress ? -46 : -56;
   const hasHat = hat !== 'none';
+  const eyeC = o.eyes ?? '#3a5a7a';
 
   /* --- vlasy --- */
   const hairBack = hairStyle === 'long'
@@ -127,6 +134,12 @@ export function person(o: PersonOpts): string {
       <path d="M-19 -188Q-20 -216 2 -216Q24 -216 23 -188z" fill="url(#${hid})" ${OL}/>
       <path d="M-18 -204Q2 -198 22 -204" stroke="${shade(hatC, 0.6)}" stroke-width="1.6" fill="none"/>
       <path d="M-19.5 -190H23.5V-184H-19.5z" fill="${shade(hatC, 0.55)}" ${ol}/></g>`;
+  } else if (hat === 'police') {
+    hatSvg = `<g transform="rotate(${tilt} 2 -186)"><path d="M-24 -190Q-28 -214 2 -218Q32 -214 28 -190z" fill="url(#${hid})" ${OL}/>
+      <path d="M-25 -197Q2 -191 29 -197L29 -189Q2 -183 -25 -189z" fill="${shade(hatC, 0.5)}" ${ol}/>
+      <path d="M12 -189q30 -1 36 6q-20 6 -38 2z" fill="#14141a" ${OL}/>
+      <path d="M-22 -207Q2 -213 26 -207" stroke="${shade(hatC, 1.5)}" stroke-width="2" fill="none" opacity=".6"/>
+      <circle cx="3" cy="-199" r="5" fill="#e8c14a" ${ol}/><circle cx="3" cy="-199" r="2" fill="#c23b3b"/></g>`;
   } else if (hat === 'cap') {
     hatSvg = `<g transform="rotate(${tilt} 2 -186)"><path d="M-21 -190Q-22 -214 2 -214Q26 -214 25 -190z" fill="url(#${hid})" ${OL}/>
       <path d="M-22 -190H26V-184H-22z" fill="${shade(hatC, 0.6)}" ${ol}/>
@@ -178,7 +191,6 @@ export function person(o: PersonOpts): string {
   const mus = o.mustache
     ? `<path d="M7 -153Q21 -163 38 -153Q36 -147 22 -151Q10 -146 7 -153z" fill="${hairD}" ${ol}/>`
     : '';
-  const noseCol = o.redNose ? '#e8806a' : skinL;
   const collar = o.collarUp
     ? `<path d="M-20 -146L-10 -158L-3 -146zM20 -146L12 -158L4 -146z" fill="${shade(coat, 1.05)}" ${OL}/>`
     : '';
@@ -188,10 +200,11 @@ export function person(o: PersonOpts): string {
 
   /* --- tělo: kabát nebo šaty --- */
   const legs = o.dress
-    ? `<path d="M-12 -52L-11 -9H-3L-3 -52z" fill="${skin}" ${OL}/><path d="M5 -52L5 -9H13L12 -52z" fill="${skinD}" ${OL}/>
+    ? `<path d="M-12 -52L-11 -9H-3L-3 -52z" fill="url(#${skg})" ${OL}/><path d="M5 -52L5 -9H13L12 -52z" fill="url(#${skg})" ${OL}/>
        <path d="M-12 -22H-3M5 -22H13" stroke="#e8e8e8" stroke-width="5"/>`
-    : `<path d="M-17 -64L-16 -9H-3L-2 -64z" fill="${pants}" ${OL}/>
-       <path d="M3 -64L4 -9H18L17 -64z" fill="${shade(pants, 0.85)}" ${OL}/>`;
+    : `<path d="M-17 -64L-16 -9H-3L-2 -64z" fill="url(#${pg})" ${OL}/>
+       <path d="M3 -64L4 -9H18L17 -64z" fill="url(#${pg})" ${OL}/>
+       <path d="M-16 -40Q-9 -36 -3 -40M4 -40Q11 -36 17 -40" stroke="${shade(pants, 0.55)}" stroke-width="1.4" fill="none" opacity=".6"/>`;
   const apron = o.apron
     ? `<path d="M-12 -118L-17 -50H${bw - 6}L${bw - 12} -118z" fill="${o.apron}" ${OL}/><path d="M-12 -118L${bw - 12} -118" stroke="${shade(o.apron, 0.7)}" stroke-width="2"/>`
     : '';
@@ -204,15 +217,18 @@ export function person(o: PersonOpts): string {
   return `
 <g transform="translate(${o.x} ${o.y}) scale(${o.flip ? -s : s} ${s})">
   <defs>
-    ${grad(gid, coat, false, 1.2, 0.7)}
+    ${grad(gid, coat, false, 1.25, 0.62)}
     ${grad(hid, hatC, true, 1.25, 0.75)}
+    ${grad(pg, pants, false, 1.2, 0.6)}
+    <radialGradient id="${skg}" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="${shade(skin, 1.16)}"/><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin, 0.7)}"/></radialGradient>
+    <radialGradient id="${nsg}" cx=".3" cy=".3" r=".9"><stop offset="0" stop-color="${shade(noseCol, 1.18)}"/><stop offset="1" stop-color="${shade(noseCol, 0.78)}"/></radialGradient>
   </defs>
   <ellipse cx="0" cy="1" rx="${38 + belly * 0.6}" ry="6" fill="#000" opacity=".22"/>
   ${legs}
-  <path d="M-20 -9H-2Q0 -1 -3 0H-22Q-25 -2 -20 -9z" fill="#3a2314" ${OL}/>
-  <path d="M2 -9H20Q23 -1 19 0H0Q-1 -2 2 -9z" fill="#2c1a0e" ${OL}/>
+  <path d="M-20 -9H-2Q0 -1 -3 0H-22Q-25 -2 -20 -9z" fill="#2a1a22" ${OL}/><path d="M-19 -7H-8" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M2 -9H20Q23 -1 19 0H0Q-1 -2 2 -9z" fill="#1e1218" ${OL}/><path d="M4 -7H14" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M-29 -140Q-44 -112 -39 -82L-30 -82Q-31 -108 -22 -130z" fill="${coatD}" ${OL}/>
-  <circle cx="-35" cy="-77" r="6" fill="${skinD}" ${ol}/>
+  <circle cx="-35" cy="-77" r="6" fill="url(#${skg})" ${ol}/>
   <path d="M-20 -146Q${-(bl - 1)} -142 ${-(bl - 1)} -118L${-(bl + 2)} ${hemY}H${bw}L${bw - 2} -118Q${bw - 2} -142 20 -146z" fill="url(#${gid})" ${OL}/>
   <path d="M0 -146V${hemY}" stroke="${coatD}" stroke-width="1.6"/>
   ${shirtTie}
@@ -220,22 +236,23 @@ export function person(o: PersonOpts): string {
   ${o.dress ? '' : `<circle cx="-5" cy="-100" r="2" fill="${coatD}"/><circle cx="-5" cy="-84" r="2" fill="${coatD}"/>`}
   ${medals}
   ${apron}
-  <path d="M26 -140Q41 -114 38 -86L29 -85Q30 -108 21 -130z" fill="${shade(coat, 0.95)}" ${OL}/>
-  <circle cx="34" cy="-80" r="6" fill="${skin}" ${ol}/>
-  <rect x="-5" y="-150" width="12" height="10" fill="${skinD}"/>
+  <path d="M26 -140Q41 -114 38 -86L29 -85Q30 -108 21 -130z" fill="url(#${gid})" ${OL}/>
+  <circle cx="34" cy="-80" r="6" fill="url(#${skg})" ${ol}/>
+  <rect x="-3" y="-152" width="8" height="12" fill="${skinD}"/>
   <g transform="translate(0 -146) scale(${head}) translate(0 146)">
     ${hairBack}
     <ellipse cx="-17" cy="-167" rx="5" ry="7" fill="${skinD}" ${ol}/>
-    <ellipse cx="2" cy="-168" rx="21" ry="24" fill="${skin}" ${OL}/>
+    <ellipse cx="2" cy="-168" rx="21" ry="24" fill="url(#${skg})" ${OL}/>
     <path d="M-12 -150Q2 -142 18 -150Q8 -138 -4 -142z" fill="${skinD}" opacity=".5"/>
     ${stubble}
     ${beard}
-    <path d="M18 -170Q${18 + 18 * nose} -168 ${17 + 16 * nose} -157Q${12 + 10 * nose} -152 17 -156z" fill="${noseCol}" ${OL}/>
+    <path d="M18 -170Q${18 + 18 * nose} -168 ${17 + 16 * nose} -157Q${12 + 10 * nose} -152 17 -156z" fill="url(#${nsg})" ${OL}/>
     <circle cx="${27 + 4 * nose}" cy="-157" r="1.6" fill="#7a3a2a"/>
     <ellipse cx="5" cy="-173" rx="6.8" ry="8" fill="#fff" ${ol}/>
     <ellipse cx="19" cy="-173" rx="5.6" ry="7.6" fill="#fff" ${ol}/>
-    <circle cx="7.6" cy="-172" r="3.4" fill="#4a6a8a"/><circle cx="7.8" cy="-172" r="1.6" fill="#111"/>
-    <circle cx="20.6" cy="-172" r="3" fill="#4a6a8a"/><circle cx="20.8" cy="-172" r="1.4" fill="#111"/>
+    <circle cx="8.2" cy="-171" r="3.2" fill="${eyeC}"/><circle cx="8.4" cy="-171" r="1.5" fill="#111"/>
+    <circle cx="21.2" cy="-171" r="2.8" fill="${eyeC}"/><circle cx="21.4" cy="-171" r="1.3" fill="#111"/>
+    <path d="M-1.8 -173.5Q5 -182 11.8 -173.5z" fill="${skinD}"/><path d="M13.4 -173.5Q19.5 -181.6 25.6 -173.5z" fill="${skinD}"/>
     ${bags}
     ${glasses}
     <path d="${brows}" stroke="${hairD}" stroke-width="3" fill="none" stroke-linecap="round"/>
@@ -267,30 +284,58 @@ export function carpet(x0: number, x1: number, y0: number, y1: number, fill: str
   return out;
 }
 
-/** Patrik: ušmudlaný detektiv na pokraji vyhazovu – strniště, kruhy pod očima, pomačkaný kabát. */
+/** Patrik: hubený strážník v šedé uniformě s kulatou čepicí a obřím nosem; hnědé vlasy i oči. */
 export const patrik = (x: number, y: number, s: number, extra: Partial<PersonOpts> = {}): string =>
   person({
     x,
     y,
     s,
-    coat: '#a89260',
-    pants: '#5a4f45',
-    hat: 'fedora',
-    hatColor: '#6a5a3a',
-    hatTilt: -7,
-    hair: '#5a3a1a',
-    hairStyle: 'messy',
-    skin: '#f0b488',
-    nose: 1.25,
-    tie: '#2f5f9a',
-    stubble: true,
-    tired: true,
-    brows: 'sad',
+    coat: '#5a5d68',
+    pants: '#34363f',
+    hat: 'police',
+    hatColor: '#43454f',
+    hatTilt: -3,
+    hair: '#5a3418',
+    hairStyle: 'short',
+    eyes: '#5a3015',
+    skin: '#f2b58a',
+    nose: 1.45,
+    tie: '#1f1f26',
+    brows: 'normal',
     mouth: 'flat',
-    collarUp: true,
     ...extra,
   });
 
 export const noise = (idv: string): string =>
   `<pattern id="${idv}" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="1.5" height="1.5" fill="#fff" opacity=".07"/><rect x="1.5" y="1.5" width="1.5" height="1.5" fill="#000" opacity=".05"/></pattern>`;
 
+
+/**
+ * Šachovnicová podlaha v perspektivě (typický vzhled Poldy 1). Vykresluje se do
+ * celé spodní části scény; ořez řeší volající přes clip-path.
+ */
+export function checker(c1: string, c2: string, yBack = 238, vx = 320, yh = 120, cw = 120): string {
+  const yb = 360;
+  const rows = 9;
+  const ys: number[] = [];
+  for (let i = 0; i <= rows; i++) {
+    const d = 1 + (i / rows) * ((yb - yh) / (yBack - yh) - 1);
+    ys.push(yh + (yb - yh) / d);
+  }
+  ys.reverse();
+  let out = '';
+  for (let r = 0; r < rows; r++) {
+    const ya = ys[r];
+    const yc = ys[r + 1];
+    const ta = (ya - yh) / (yb - yh);
+    const tc = (yc - yh) / (yb - yh);
+    for (let j = -12; j < 12; j++) {
+      const xa0 = vx + j * cw * ta;
+      const xa1 = vx + (j + 1) * cw * ta;
+      const xc0 = vx + j * cw * tc;
+      const xc1 = vx + (j + 1) * cw * tc;
+      out += `<polygon points="${xa0.toFixed(1)},${ya.toFixed(1)} ${xa1.toFixed(1)},${ya.toFixed(1)} ${xc1.toFixed(1)},${yc.toFixed(1)} ${xc0.toFixed(1)},${yc.toFixed(1)}" fill="${(r + j) & 1 ? c1 : c2}"/>`;
+    }
+  }
+  return out;
+}

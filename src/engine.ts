@@ -3,11 +3,13 @@ import { settings, blip, ring, click, chime, sad, playVoice, stopVoice } from '.
 import { speakers } from './speakers';
 import { voiceKey } from './voice';
 import { backgrounds } from './backgrounds';
+import { pixelView } from './render';
+import { patrik } from './art';
 import { items, itemIcon } from './game/items';
 import { locations } from './game/locations';
 import { convs } from './game/convs';
 import { intro } from './game/story';
-import type { BgId, Ending, Game, Hotspot, Line, Step } from './types';
+import type { BgId, Ending, Game, Hotspot, Line, SpeakerId, Step } from './types';
 
 const SAVE_KEY = 'zvb-save';
 
@@ -47,6 +49,36 @@ const GENERIC: Record<Verb | 'item', string[]> = {
   item: ['Tohle tam nepasuje.', 'S tím bych to nezkoušel.', 'To nevypadá jako dobrý nápad.'],
 };
 
+/** Postavy, se kterými se promluví kliknutím; mapa na mluvčího. */
+const PEOPLE: Record<string, SpeakerId> = {
+  starenka: 'starenka',
+  kluk: 'kluk',
+  pepa: 'pepa',
+  statkar: 'statkar',
+  zena: 'zena',
+  stamgasti: 'stamgasti',
+  hospodsky: 'hospodsky',
+  pani: 'pani',
+  starosta: 'starosta',
+  sberatel: 'sberatel',
+};
+
+const OPENERS = ['Dobrý den. Máte chvilku?', 'Dobrý den, nezlobte se…', 'Dovolíte jednu otázku?', 'Zdravím. Z okresu, nic vážného.'];
+const REPLIES = [
+  'Rohlík? Já nic neviděl, pane. Opravdu.',
+  'Brdýmov je klidné místo. Do včerejška.',
+  'Řekl bych vám to, ale pak by mi nikdo neprodal chleba.',
+  'Slyšel jsem, že to byli cizí. Nebo naši. Podle toho, koho se ptáte.',
+  'Hezky dneska, že? Na vraždu rohlíku akorát.',
+  'Já se do toho nepletu. Já jen bydlím poblíž.',
+  'Vy jste ten z okresu? Prý nemáte ani na benzín.',
+  'Zeptejte se Pepy. Ten ví všechno a říká polovinu.',
+];
+const AFTER = ['Díky, to mi pomohlo. Asi ne.', 'Aha. To jsem potřeboval slyšet.', 'Budu o tom přemýšlet. Nahlas.', 'Děkuju. Hezký den.'];
+const pick = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)];
+
+const WALK_Y: Partial<Record<BgId, [number, number]>> = { square2: [272, 346], dvur: [272, 346] };
+
 const ENDINGS: Record<Ending, { banner: string; cls: string }> = {
   bad: { banner: 'ŠPATNÝ KONEC', cls: 'bad' },
   arrest: { banner: 'HOŘKÝ KONEC: případ vyřešen, ale chutná to divně', cls: 'arrest' },
@@ -72,6 +104,14 @@ export class Engine implements Game {
   // DOM
   readonly screen = h('div', 'screen game cut');
   private scene = h('div', 'scene');
+  private view = pixelView();
+  private invPanel = h('div', 'invpanel');
+  private px = 120;
+  private py = 330;
+  private face = 1;
+  private showPlayer = false;
+  private walkId = 0;
+  private bgNow: BgId = 'square2';
   private hots = h('div', 'hots');
   private shield = h('div', 'shield');
   private bar = h('div', 'bar');
@@ -86,15 +126,28 @@ export class Engine implements Game {
 
   constructor(private onMenu: () => void) {
     const stage = h('div', 'stage');
-    stage.append(this.scene, this.hots, this.shield, this.toasts);
+    this.scene.append(this.view.el);
+    this.hots.addEventListener('click', (e) => {
+      if (e.target !== this.hots || this.mode !== 'explore' || this.queue.length || this.awaitClick) return;
+      const r = this.hots.getBoundingClientRect();
+      this.walkTo(((e.clientX - r.left) / r.width) * 640, ((e.clientY - r.top) / r.height) * 360);
+    });
+    stage.append(this.scene, this.hots, this.shield, this.toasts, this.invPanel);
     const top = h('div', 'topbar');
-    const menuBtn = h('button', 'btn ghost', 'Menu');
+    const menuBtn = h('button', 'redbtn', 'MENU');
     menuBtn.onclick = (e) => {
       e.stopPropagation();
       this.dispose();
       this.onMenu();
     };
-    top.append(menuBtn);
+    const invBtn = h('button', 'redbtn inv-btn', 'INV.');
+    invBtn.onclick = (e) => {
+      e.stopPropagation();
+      click();
+      this.invPanel.classList.toggle('open');
+    };
+    this.invPanel.append(this.invEl);
+    top.append(menuBtn, invBtn);
 
     const ctrl = h('div', 'ctrl');
     for (const v of VERBS) {
@@ -107,7 +160,7 @@ export class Engine implements Game {
       };
       this.verbsEl.append(b);
     }
-    ctrl.append(this.verbsEl, this.invEl);
+    ctrl.append(this.verbsEl);
 
     const text = h('div', 'text');
     text.append(this.who, this.msg, this.more, this.choices);
@@ -120,7 +173,9 @@ export class Engine implements Game {
   }
 
   dispose(): void {
+    this.walkId++;
     this.stopTyping();
+    this.view.stop();
     stopVoice();
   }
 
@@ -158,7 +213,8 @@ export class Engine implements Game {
       this.renderInv();
       this.showLocation(this.loc, false);
       return true;
-    } catch {
+    } catch (err) {
+      console.error('load', err);
       return false;
     }
   }
@@ -176,7 +232,8 @@ export class Engine implements Game {
   /* ---------------- Scéna a průzkum ---------------- */
 
   private setScene(bg: BgId): void {
-    this.scene.innerHTML = backgrounds[bg];
+    this.bgNow = bg;
+    this.view.set(backgrounds[bg], () => (this.showPlayer ? this.playerSvg() : ''));
   }
 
   private renderMode(): void {
@@ -189,6 +246,11 @@ export class Engine implements Game {
     this.loc = id;
     this.mode = 'explore';
     this.renderMode();
+    this.walkId++;
+    this.px = 110;
+    this.py = 332;
+    this.face = 1;
+    this.showPlayer = true;
     this.setScene(typeof loc.bg === 'function' ? loc.bg(this) : loc.bg);
     this.hots.replaceChildren();
     for (const hs of loc.hotspots) {
@@ -204,7 +266,8 @@ export class Engine implements Game {
       el.onmouseleave = () => this.setStatus('');
       el.onclick = (e) => {
         e.stopPropagation();
-        this.clickHot(hs);
+        if (this.mode !== 'explore' || this.queue.length || this.awaitClick) return;
+        this.walkToHot(hs);
       };
       this.hots.append(el);
     }
@@ -255,8 +318,76 @@ export class Engine implements Game {
       this.exec([{ go: hs.go }]);
       return;
     }
+    if (PEOPLE[hs.id]) {
+      this.exec(hs.talk ?? this.chat(PEOPLE[hs.id]));
+      return;
+    }
     const script = hs[this.verb];
     this.exec(script ?? [this.generic(this.verb)]);
+  }
+
+  /** Náhodné popovídání s kolemjdoucím. */
+  private chat(who: SpeakerId): Step[] {
+    return [
+      { who: 'karel', text: pick(OPENERS), silent: true },
+      { who, text: pick(REPLIES), silent: true },
+      { who: 'karel', text: pick(AFTER), silent: true },
+    ];
+  }
+
+  /* ---------------- Chůze hlavní postavy ---------------- */
+
+  private playerSvg(): string {
+    const [, y1] = WALK_Y[this.bgNow] ?? [250, 346];
+    const s = 0.46 + 0.4 * Math.max(0, Math.min(1, (this.py - 250) / (y1 - 250)));
+    return patrik(this.px, this.py, s, { flip: this.face < 0 });
+  }
+
+  private clampWalk(x: number, y: number): [number, number] {
+    const [y0, y1] = WALK_Y[this.bgNow] ?? [252, 346];
+    return [Math.max(30, Math.min(610, x)), Math.max(y0, Math.min(y1, y))];
+  }
+
+  private walkToHot(hs: Hotspot): void {
+    const [x, y, w, hh] = hs.rect;
+    const cx = x + w / 2;
+    let tx = cx;
+    if (PEOPLE[hs.id]) tx = cx + (this.px < cx ? -(w / 2 + 30) : w / 2 + 30);
+    this.walkTo(tx, y + hh, () => this.clickHot(hs));
+  }
+
+  private walkTo(x: number, y: number, then?: () => void): void {
+    const [tx, ty] = this.clampWalk(x, y);
+    const id = ++this.walkId;
+    const speed = 210; // jednotek scény za sekundu
+    let last = performance.now();
+    let acc = 0;
+    const step = (now: number): void => {
+      if (id !== this.walkId) return;
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const dx = tx - this.px;
+      const dy = ty - this.py;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 3) {
+        this.px = tx;
+        this.py = ty;
+        this.view.refresh();
+        then?.();
+        return;
+      }
+      const m = Math.min(dist, speed * dt);
+      this.px += (dx / dist) * m;
+      this.py += (dy / dist) * m;
+      if (Math.abs(dx) > 2) this.face = dx > 0 ? 1 : -1;
+      acc += dt;
+      if (acc > 0.07) {
+        acc = 0;
+        this.view.refresh();
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   }
 
   private generic(kind: Verb | 'item'): Line {
@@ -279,6 +410,7 @@ export class Engine implements Game {
         if (this.mode !== 'explore' || this.queue.length || this.awaitClick) return;
         click();
         this.sel = this.sel === id ? null : id;
+        this.invPanel.classList.remove('open');
         this.renderInv();
         this.setStatus(this.sel ? `Vybráno: ${it.name}. Klikni na věc ve scéně.` : '');
       };
@@ -327,6 +459,8 @@ export class Engine implements Game {
         this.toast(s.toast);
       } else if ('bg' in s) {
         this.mode = 'cut';
+        this.walkId++;
+        this.showPlayer = false;
         this.renderMode();
         this.setScene(s.bg);
       } else if ('go' in s) {

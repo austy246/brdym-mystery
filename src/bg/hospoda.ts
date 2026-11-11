@@ -1,4 +1,4 @@
-import { wrap, person, rep, noise, OL, ol } from '../art';
+import { wrap, person, rep, noise, OL, ol, checker } from '../art';
 
 /**
  * HOSPODA U ROHLÍKU – vnitřek venkovské hospody.
@@ -65,8 +65,7 @@ ${rep(29, (i) => `<path d="M${i * 20} 172v66" stroke="#3b2214" stroke-width="1.4
 <!-- podlaha -->
 <polygon points="0,238 580,238 640,300 640,360 0,360" fill="url(#hfl)"/>
 <g clip-path="url(#hfloor)">
-  ${rep(11, (i) => `<path d="M${i * 62 - 20} 238L${i * 98 - 170} 360" stroke="#1d1209" stroke-width="1.6" opacity=".55"/>`)}
-  <path d="M0 270h640M0 308h640M0 340h640" stroke="#1d1209" stroke-width="1.4" opacity=".35"/>
+  ${checker('#9a2a22', '#f0dcae', 238)}
   <ellipse cx="150" cy="332" rx="90" ry="12" fill="#f4d79a" opacity=".12"/>
   <ellipse cx="330" cy="268" rx="40" ry="5" fill="#f4d79a" opacity=".08"/>
   <ellipse cx="380" cy="344" rx="22" ry="4" fill="#2a160a" opacity=".5"/>
