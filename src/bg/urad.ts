@@ -18,8 +18,8 @@ const bill = (x: number, y: number, rot: number, word: string): string => `
 
 const urad = wrap(`
 <defs>
-  <linearGradient id="uw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7e29a"/><stop offset="1" stop-color="#e2bb6c"/></linearGradient>
-  <linearGradient id="uws" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cf9c52"/><stop offset="1" stop-color="#a97a3a"/></linearGradient>
+  <linearGradient id="uw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d8d02a"/><stop offset="1" stop-color="#b4ac16"/></linearGradient>
+  <linearGradient id="uws" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9c9612"/><stop offset="1" stop-color="#7a740e"/></linearGradient>
   <linearGradient id="upan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a30"/><stop offset="1" stop-color="#5a3818"/></linearGradient>
   <linearGradient id="udesk" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9a6234"/><stop offset=".5" stop-color="#b57a44"/><stop offset="1" stop-color="#7a4a22"/></linearGradient>
   <linearGradient id="udeskt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9a05a"/><stop offset="1" stop-color="#9a6232"/></linearGradient>

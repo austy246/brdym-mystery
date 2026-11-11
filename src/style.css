@@ -118,7 +118,7 @@ input[type="range"] { width: 100%; accent-color: #f0c869; }
 .stage { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; overflow: hidden; }
 .scene { position: absolute; inset: 0; }
 .scene svg, .scene canvas { width: 100%; height: 100%; display: block; }
-canvas.pixel { image-rendering: pixelated; object-fit: cover; }
+canvas.pixel { image-rendering: auto; object-fit: cover; }
 .car { animation: bump .5s ease-in-out infinite alternate; }
 @keyframes bump { to { transform: translateY(-3px); } }
 .poles { animation: scroll 1.6s linear infinite; }

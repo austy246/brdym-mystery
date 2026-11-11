@@ -25,8 +25,8 @@ const bottle = (x: number, y: number, c: string, h = 34): string => `
 
 const hospoda = wrap(`
 <defs>
-  <linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0c68c"/><stop offset="1" stop-color="#d9995c"/></linearGradient>
-  <linearGradient id="hws" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#bd7440"/><stop offset="1" stop-color="#9a5a30"/></linearGradient>
+  <linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dccf22"/><stop offset="1" stop-color="#b8ae14"/></linearGradient>
+  <linearGradient id="hws" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a09810"/><stop offset="1" stop-color="#7c760c"/></linearGradient>
   <linearGradient id="hpan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6334"/><stop offset="1" stop-color="#6d4220"/></linearGradient>
   <linearGradient id="hbar" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c98a47"/><stop offset=".5" stop-color="#b87a3c"/><stop offset="1" stop-color="#8f5628"/></linearGradient>
   <linearGradient id="hbart" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0a860"/><stop offset="1" stop-color="#a8692f"/></linearGradient>

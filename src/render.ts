@@ -5,7 +5,7 @@
  */
 
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-const LEVELS = [7, 8, 6]; // úrovně R, G, B
+const LEVELS = [14, 16, 12]; // úrovně R, G, B
 
 const ANIM_CSS: Array<[string, string]> = [
   ['.car', 'bump .5s ease-in-out infinite alternate'],
@@ -40,7 +40,7 @@ function grade(data: Uint8ClampedArray, w: number, h: number): void {
       let g = data[i + 1];
       let b = data[i + 2];
       const l = 0.3 * r + 0.59 * g + 0.11 * b;
-      const k = 1.32; // sytost
+      const k = 1.4; // sytost
       r = l + (r - l) * k;
       g = l + (g - l) * k;
       b = l + (b - l) * k;
@@ -50,11 +50,11 @@ function grade(data: Uint8ClampedArray, w: number, h: number): void {
       b = (b - 128) * 1.08 + 134;
       // zrno (pevné podle pozice)
       const hs = ((x * 73856093) ^ (y * 19349663)) >>> 0;
-      const n = ((hs % 1000) / 1000 - 0.5) * 10;
+      const n = ((hs % 1000) / 1000 - 0.5) * 3;
       const d = BAYER[(y & 3) * 4 + (x & 3)] / 16 - 0.5;
       const q = (v: number, lv: number): number => {
         const step = 255 / (lv - 1);
-        const u = (Math.max(0, Math.min(255, v + n)) / step) + d * 0.9;
+        const u = (Math.max(0, Math.min(255, v + n)) / step) + d * 0.6;
         return Math.max(0, Math.min(lv - 1, Math.round(u))) * step;
       };
       data[i] = q(r, LEVELS[0]);
@@ -72,7 +72,7 @@ export interface PixelView {
 }
 
 /** Vytvoří plátno, které zobrazuje SVG scény v pixelovém stylu. */
-export function pixelView(width = 400): PixelView {
+export function pixelView(width = 320): PixelView {
   const el = document.createElement('canvas');
   el.className = 'pixel';
   const low = document.createElement('canvas');

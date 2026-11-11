@@ -15,8 +15,8 @@ import type { PersonOpts } from './art';
 
 const office = wrap(`
 <defs>
-  <linearGradient id="ow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7b883"/><stop offset="1" stop-color="#e88f5c"/></linearGradient>
-  <linearGradient id="ows" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9703f"/><stop offset="1" stop-color="#a95a32"/></linearGradient>
+  <linearGradient id="ow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2d21c"/><stop offset="1" stop-color="#bcb410"/></linearGradient>
+  <linearGradient id="ows" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a49c10"/><stop offset="1" stop-color="#807a0c"/></linearGradient>
   <linearGradient id="ocar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8262e"/><stop offset="1" stop-color="#8a1a22"/></linearGradient>
   <linearGradient id="owood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c98745"/><stop offset=".5" stop-color="#b9763a"/><stop offset="1" stop-color="#8f5628"/></linearGradient>
   <linearGradient id="owoodt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d99c5a"/><stop offset="1" stop-color="#a8692f"/></linearGradient>

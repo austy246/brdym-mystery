@@ -25,8 +25,8 @@ const jar = (x: number, y: number, colors: string[]): string => `
 
 const trafika = wrap(`
 <defs>
-  <linearGradient id="tw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9d9a4"/><stop offset="1" stop-color="#eab878"/></linearGradient>
-  <linearGradient id="tws" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d99a62"/><stop offset="1" stop-color="#b87844"/></linearGradient>
+  <linearGradient id="tw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6d628"/><stop offset="1" stop-color="#c2ba18"/></linearGradient>
+  <linearGradient id="tws" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a6a014"/><stop offset="1" stop-color="#827c0e"/></linearGradient>
   <linearGradient id="ttile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#63b0a0"/><stop offset="1" stop-color="#3f8a7c"/></linearGradient>
   <linearGradient id="twood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c98a47"/><stop offset=".5" stop-color="#b87a3c"/><stop offset="1" stop-color="#8f5628"/></linearGradient>
   <linearGradient id="twoodt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0a860"/><stop offset="1" stop-color="#a8692f"/></linearGradient>
