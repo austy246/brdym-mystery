@@ -284,27 +284,75 @@ export function carpet(x0: number, x1: number, y0: number, y1: number, fill: str
   return out;
 }
 
-/** Patrik: hubený strážník v šedé uniformě s kulatou čepicí a obřím nosem; hnědé vlasy i oči. */
+/**
+ * Patrik podle vzoru Pankráce z Poldy 1: hubený shrbený strážník z profilu,
+ * tmavě šedá košile s krátkým rukávem, černé kalhoty a boty, ruce za zády,
+ * kulatá čepice s dlouhým štítkem a obří nos. Hnědé vlasy i oči, žádný kabát.
+ */
+export function pankrac(x: number, y: number, s = 1, flip = false): string {
+  const g = nid('pk');
+  const pt = nid('pp');
+  const sk = nid('ps');
+  const cp = nid('pc');
+  const skin = '#f0a070';
+  const hair = '#6a3a18';
+  return `
+<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">
+  <defs>
+    ${grad(g, '#5a5a64', false, 1.3, 0.55)}
+    ${grad(pt, '#363640', false, 1.35, 0.5)}
+    ${grad(cp, '#50505a', true, 1.3, 0.6)}
+    <radialGradient id="${sk}" cx=".35" cy=".3" r=".95"><stop offset="0" stop-color="${shade(skin, 1.18)}"/><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin, 0.66)}"/></radialGradient>
+  </defs>
+  <ellipse cx="8" cy="1" rx="42" ry="6" fill="#000" opacity=".24"/>
+  <!-- zadní noha a bota -->
+  <path d="M-14 -90L4 -90L2 -48L-2 -11L-17 -11L-12 -48z" fill="url(#${pt})" ${OL}/>
+  <path d="M-21 -12H-5Q6 -12 9 -4Q9 0 5 0H-25Q-29 -5 -21 -12z" fill="#17171c" ${OL}/><path d="M-19 -9H-8" stroke="#fff" stroke-opacity=".35" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- přední noha a bota -->
+  <path d="M-4 -90L16 -90L24 -48L24 -11L9 -11L6 -48z" fill="url(#${pt})" ${OL}/>
+  <path d="M6 -12H25Q38 -10 42 -3Q42 0 38 0H3Q-1 -5 6 -12z" fill="#101014" ${OL}/><path d="M9 -9H22" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- trup (předkloněný) -->
+  <g transform="rotate(17 0 -88)">
+    <path d="M-16 -88L18 -88L20 -116Q23 -134 12 -141L-12 -141Q-21 -131 -18 -112z" fill="url(#${g})" ${OL}/>
+    <rect x="-17" y="-93" width="37" height="6.5" fill="#101014" ${ol}/><rect x="-3" y="-93" width="8" height="6.5" fill="#b8b8c0" ${ol}/>
+    <path d="M2 -138L2 -94" stroke="#2a2a32" stroke-width="1.4" opacity=".7"/>
+    <rect x="6" y="-128" width="10" height="9" fill="#2a2a32" opacity=".45"/>
+    <path d="M-9 -141L-2 -131L5 -141z" fill="#6a6a74" ${ol}/>
+  </g>
+  <!-- paže za zády -->
+  <path d="M14 -136Q0 -134 -4 -118L8 -114Q8 -124 18 -128z" fill="url(#${g})" ${OL}/>
+  <path d="M-4 -118L-10 -98L-2 -95L8 -114z" fill="url(#${sk})" ${ol}/>
+  <circle cx="-8" cy="-94" r="5" fill="url(#${sk})" ${ol}/>
+  <!-- krk -->
+  <path d="M17 -138L28 -160L38 -155L30 -134z" fill="${shade(skin, 0.82)}" ${ol}/>
+  <!-- hlava -->
+  <g transform="translate(34 -172) rotate(9)">
+    <path d="M-17 -4Q-21 10 -11 18L-6 8Q-11 2 -9 -8z" fill="${hair}" ${ol}/>
+    <ellipse cx="-9" cy="2" rx="4.4" ry="6.4" fill="${shade(skin, 0.86)}" ${ol}/>
+    <ellipse cx="2" cy="1" rx="18" ry="21" fill="url(#${sk})" ${OL}/>
+    <path d="M12 12Q22 22 8 25Q-2 25 -6 16Q4 22 12 12z" fill="${shade(skin, 0.8)}" opacity=".7"/>
+    <path d="M14 -3Q36 -1 37 12Q35 22 24 20Q18 18 16 12z" fill="url(#${sk})" ${OL}/>
+    <circle cx="30" cy="15" r="1.7" fill="#7a3a2a"/>
+    <ellipse cx="8" cy="-6" rx="6.6" ry="7.4" fill="#fff" ${ol}/>
+    <circle cx="10.4" cy="-5" r="3.5" fill="#5a3015"/><circle cx="10.8" cy="-5" r="1.6" fill="#120804"/>
+    <path d="M1.4 -7.5Q8 -14 14.6 -7.5z" fill="${shade(skin, 0.88)}"/>
+    <path d="M1 -14Q8 -18 15 -13" stroke="${hair}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M12 17Q19 21 25 16" stroke="#8a3a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- čepice -->
+    <g transform="rotate(-4 2 -16)">
+      <path d="M-20 -14Q-23 -37 2 -40Q27 -37 23 -14z" fill="url(#${cp})" ${OL}/>
+      <path d="M-22 -19Q2 -12 25 -19L25 -11Q2 -4 -22 -11z" fill="#2a2a32" ${ol}/>
+      <path d="M12 -13Q38 -17 52 -10Q36 -5 10 -8z" fill="#101014" ${OL}/>
+      <path d="M-16 -30Q2 -37 18 -30" stroke="#8a8a96" stroke-width="2" fill="none" opacity=".6"/>
+      <circle cx="6" cy="-24" r="4.6" fill="#c8c8d0" ${ol}/><circle cx="6" cy="-24" r="1.8" fill="#8a8a96"/>
+    </g>
+  </g>
+</g>`;
+}
+
+/** Hlavní postava (zachován původní název pro scény). */
 export const patrik = (x: number, y: number, s: number, extra: Partial<PersonOpts> = {}): string =>
-  person({
-    x,
-    y,
-    s,
-    coat: '#5a5d68',
-    pants: '#34363f',
-    hat: 'police',
-    hatColor: '#43454f',
-    hatTilt: -3,
-    hair: '#5a3418',
-    hairStyle: 'short',
-    eyes: '#5a3015',
-    skin: '#f2b58a',
-    nose: 1.45,
-    tie: '#1f1f26',
-    brows: 'normal',
-    mouth: 'flat',
-    ...extra,
-  });
+  pankrac(x, y, s, !!extra.flip);
 
 export const noise = (idv: string): string =>
   `<pattern id="${idv}" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="1.5" height="1.5" fill="#fff" opacity=".07"/><rect x="1.5" y="1.5" width="1.5" height="1.5" fill="#000" opacity=".05"/></pattern>`;
