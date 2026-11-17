@@ -69,11 +69,13 @@ export interface PersonOpts {
   redNose?: boolean;
   collarUp?: boolean;
   eyes?: string;
+  sleeves?: 'short' | 'long';
+  pocket?: boolean;
 }
 
 export function person(o: PersonOpts): string {
   const s = o.s ?? 1;
-  const skin = o.skin ?? '#f1b88c';
+  const skin = o.skin ?? '#e8924f';
   const hair = o.hair ?? '#7a4a22';
   const hairStyle = o.hairStyle ?? 'short';
   const coat = o.coat ?? '#8a7650';
@@ -81,138 +83,164 @@ export function person(o: PersonOpts): string {
   const hat = o.hat ?? 'none';
   const hatC = o.hatColor ?? '#55482c';
   const belly = o.belly ?? 0;
-  const nose = (o.nose ?? 1) * 1.3;
-  const head = (o.head ?? 1) * 0.9;
+  const n = o.nose ?? 1;
+  const head = o.head ?? 1;
   const gid = nid('pg');
   const hid = nid('ph');
   const skg = nid('sk');
   const pg = nid('pt');
   const nsg = nid('ns');
-  const skinD = shade(skin, 0.84);
-  const skinL = shade(skin, 1.1);
+  const skinD = shade(skin, 0.82);
+  const skinL = shade(skin, 1.12);
   const noseCol = o.redNose ? '#e8806a' : skinL;
-  const coatD = shade(coat, 0.7);
+  const coatD = shade(coat, 0.68);
   const hairD = shade(hair, 0.6);
-  const bw = 34 + belly; // přední hrana kabátu
-  const bl = 36 + belly * 0.25; // zadní hrana
-  const hemY = o.dress ? -46 : -56;
-  const hasHat = hat !== 'none';
-  const eyeC = o.eyes ?? '#3a5a7a';
+  const hw = 26 + belly * 0.5; // půlšířka trupu
+  const hemY = o.dress ? -80 : -58;
+  const eyeC = o.eyes ?? '#6a3a18';
+  const shortSl = o.sleeves === 'short';
 
   /* --- vlasy --- */
-  const hairBack = hairStyle === 'long'
-    ? `<path d="M-22 -178Q-36 -150 -30 -116L-10 -120Q-18 -148 -15 -170z" fill="${hair}" ${OL}/>`
-    : '';
-  const sideTufts = `<path d="M-19 -176Q-23 -170 -20 -162L-16 -165Q-17 -170 -16 -175z" fill="${hair}" ${ol}/>`;
+  const sideTufts = `<path d="M-19 -172Q-24 -166 -21 -154L-17.5 -158Q-17.5 -165 -16 -171z" fill="${hair}" ${ol}/><path d="M19 -172Q24 -166 21 -154L17.5 -158Q17.5 -165 16 -171z" fill="${hair}" ${ol}/>`;
+  const hairBack =
+    hairStyle === 'long'
+      ? `<path d="M-22 -170Q-36 -140 -29 -108L-14 -114Q-20 -140 -17 -165z" fill="${hair}" ${OL}/><path d="M22 -170Q36 -140 29 -108L14 -114Q20 -140 17 -165z" fill="${hair}" ${OL}/>`
+      : '';
   let hairFront = '';
   if (hat === 'none' || hat === 'beret') {
     switch (hairStyle) {
       case 'messy':
-        hairFront = `<path d="M-21 -172L-28 -185L-17 -184L-19 -197L-8 -192L-6 -205L2 -197L8 -207L12 -197L22 -203L20 -190L29 -186L22 -178Q10 -190 -6 -186Q-14 -184 -21 -172z" fill="${hair}" ${OL}/>`;
+        hairFront = `<path d="M-22 -168L-28 -182L-17 -180L-19 -194L-8 -188L-4 -202L3 -193L10 -203L13 -192L23 -196L21 -184L28 -180L22 -168Q12 -182 0 -180Q-12 -182 -22 -168z" fill="${hair}" ${OL}/>`;
         break;
       case 'bald':
-        hairFront = `${sideTufts}<ellipse cx="-3" cy="-189" rx="7" ry="3" fill="#fff" opacity=".35"/>`;
+        hairFront = `${sideTufts}<ellipse cx="-4" cy="-180" rx="8" ry="3" fill="#fff" opacity=".35"/>`;
         break;
       case 'combover':
-        hairFront = `${sideTufts}<path d="M-13 -191Q2 -202 18 -190M-12 -186Q2 -196 17 -184M-11 -181Q2 -190 15 -178" stroke="${hair}" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="-4" cy="-193" rx="6" ry="2.5" fill="#fff" opacity=".3"/>`;
+        hairFront = `${sideTufts}<path d="M-13 -181Q0 -190 13 -181M-12 -177Q0 -185 12 -176M-11 -173Q0 -180 11 -172" stroke="${hair}" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="-4" cy="-184" rx="6" ry="2.5" fill="#fff" opacity=".3"/>`;
         break;
       case 'bun':
-        hairFront = `<circle cx="-14" cy="-199" r="9" fill="${hair}" ${OL}/><path d="M-20 -176Q-22 -200 2 -199Q26 -200 22 -178Q10 -190 -6 -186Q-14 -184 -20 -176z" fill="${hair}" ${OL}/>`;
+        hairFront = `<circle cx="0" cy="-198" r="9" fill="${hair}" ${OL}/><path d="M-21 -168Q-23 -197 0 -196Q23 -197 21 -168Q12 -182 0 -180Q-12 -182 -21 -168z" fill="${hair}" ${OL}/>`;
         break;
       default:
-        hairFront = `<path d="M-20 -176Q-22 -200 2 -199Q26 -200 22 -178Q10 -190 -6 -186Q-14 -184 -20 -176z" fill="${hair}" ${OL}/>`;
+        hairFront = `<path d="M-21 -168Q-24 -196 0 -197Q24 -196 21 -168Q12 -182 0 -180Q-12 -182 -21 -168z" fill="${hair}" ${OL}/>`;
     }
   } else if (hat !== 'scarf') {
-    hairFront = hairStyle === 'bald' || hairStyle === 'combover' ? sideTufts : `${sideTufts}`;
+    hairFront = `${sideTufts}${
+      hairStyle === 'bald'
+        ? ''
+        : `<path d="M-20 -166Q-21 -183 -8 -183L0 -169L8 -183Q21 -183 20 -166Q13 -174 6 -175L0 -168L-6 -175Q-13 -174 -20 -166z" fill="${hair}" ${ol}/>`
+    }`;
   }
 
-  /* --- klobouky --- */
+  /* --- klobouky (čelní pohled, čelo na y = -178) --- */
   const tilt = o.hatTilt ?? 0;
   let hatSvg = '';
-  if (hat === 'fedora') {
-    hatSvg = `<g transform="rotate(${tilt} 2 -186)"><ellipse cx="2" cy="-186" rx="33" ry="7.5" fill="${shade(hatC, 0.82)}" ${OL}/>
-      <path d="M-19 -188Q-20 -216 2 -216Q24 -216 23 -188z" fill="url(#${hid})" ${OL}/>
-      <path d="M-18 -204Q2 -198 22 -204" stroke="${shade(hatC, 0.6)}" stroke-width="1.6" fill="none"/>
-      <path d="M-19.5 -190H23.5V-184H-19.5z" fill="${shade(hatC, 0.55)}" ${ol}/></g>`;
-  } else if (hat === 'police') {
-    hatSvg = `<g transform="rotate(${tilt} 2 -186)"><path d="M-24 -190Q-28 -214 2 -218Q32 -214 28 -190z" fill="url(#${hid})" ${OL}/>
-      <path d="M-25 -197Q2 -191 29 -197L29 -189Q2 -183 -25 -189z" fill="${shade(hatC, 0.5)}" ${ol}/>
-      <path d="M12 -189q30 -1 36 6q-20 6 -38 2z" fill="#14141a" ${OL}/>
-      <path d="M-22 -207Q2 -213 26 -207" stroke="${shade(hatC, 1.5)}" stroke-width="2" fill="none" opacity=".6"/>
-      <circle cx="3" cy="-199" r="5" fill="#e8c14a" ${ol}/><circle cx="3" cy="-199" r="2" fill="#c23b3b"/></g>`;
+  if (hat === 'police') {
+    hatSvg = `<g transform="translate(0 -6) rotate(${tilt} 0 -178)">
+      <path d="M-36 -178Q-43 -204 -14 -213Q0 -217 14 -213Q43 -204 36 -178Q0 -170 -36 -178z" fill="url(#${hid})" ${OL}/>
+      <path d="M-30 -186Q-34 -200 -22 -208M30 -186Q34 -200 22 -208M-8 -190Q-14 -200 -9 -210M8 -190Q14 -200 9 -210" stroke="${shade(hatC, 0.55)}" stroke-width="1.6" fill="none" opacity=".7"/>
+      <path d="M-35 -185Q0 -176 35 -185L36 -177Q0 -169 -36 -177z" fill="${shade(hatC, 0.5)}" ${ol}/>
+      <path d="M-23 -179Q0 -187 23 -179Q18 -171 0 -170Q-18 -171 -23 -179z" fill="#16161c" ${OL}/>
+      <path d="M-16 -178Q0 -183 16 -178" stroke="#fff" stroke-opacity=".28" stroke-width="1.4" fill="none"/>
+      <circle cx="0" cy="-199" r="7.6" fill="#b8b8c0" ${OL}/><circle cx="0" cy="-199" r="4.8" fill="#8e8e9a"/><path d="M-3 -197Q0 -203 3 -197Q0 -195 -3 -197z" fill="#d8d8e0"/></g>`;
+  } else if (hat === 'fedora') {
+    hatSvg = `<g transform="rotate(${tilt} 0 -178)"><ellipse cx="0" cy="-178" rx="38" ry="7.5" fill="${shade(hatC, 0.82)}" ${OL}/>
+      <path d="M-21 -180Q-22 -212 0 -212Q22 -212 21 -180z" fill="url(#${hid})" ${OL}/>
+      <path d="M-20 -194Q0 -188 20 -194" stroke="${shade(hatC, 0.6)}" stroke-width="1.6" fill="none"/>
+      <path d="M-21 -184H21V-178H-21z" fill="${shade(hatC, 0.55)}" ${ol}/></g>`;
   } else if (hat === 'cap') {
-    hatSvg = `<g transform="rotate(${tilt} 2 -186)"><path d="M-21 -190Q-22 -214 2 -214Q26 -214 25 -190z" fill="url(#${hid})" ${OL}/>
-      <path d="M-22 -190H26V-184H-22z" fill="${shade(hatC, 0.6)}" ${ol}/>
-      <path d="M12 -186q26 -2 32 4q-15 5 -32 2z" fill="${shade(hatC, 0.5)}" ${ol}/>
-      <circle cx="12" cy="-199" r="4" fill="#e8c14a" ${ol}/></g>`;
+    hatSvg = `<g transform="rotate(${tilt} 0 -178)"><path d="M-24 -178Q-26 -206 0 -206Q26 -206 24 -178z" fill="url(#${hid})" ${OL}/>
+      <path d="M-24 -184Q0 -178 24 -184L24 -178Q0 -172 -24 -178z" fill="${shade(hatC, 0.6)}" ${ol}/>
+      <path d="M-22 -178Q0 -171 22 -178Q16 -167 0 -167Q-16 -167 -22 -178z" fill="${shade(hatC, 0.5)}" ${OL}/>
+      <circle cx="0" cy="-206" r="2.4" fill="${shade(hatC, 0.6)}"/><circle cx="0" cy="-193" r="4" fill="#e8c14a" ${ol}/></g>`;
   } else if (hat === 'beret') {
-    hatSvg = `<ellipse cx="-1" cy="-193" rx="28" ry="10" fill="url(#${hid})" ${OL} transform="rotate(-9 -1 -193)"/><rect x="-5" y="-206" width="4" height="7" rx="2" fill="${shade(hatC, 0.6)}" ${ol}/>`;
+    hatSvg = `<ellipse cx="-2" cy="-186" rx="30" ry="11" fill="url(#${hid})" ${OL} transform="rotate(-8 -2 -186)"/><rect x="-6" y="-200" width="4" height="7" rx="2" fill="${shade(hatC, 0.6)}" ${ol}/>`;
   } else if (hat === 'straw') {
-    hatSvg = `<ellipse cx="2" cy="-188" rx="44" ry="9" fill="${shade(hatC, 1.1)}" ${OL}/>
-      <path d="M-18 -190Q-18 -214 2 -214Q22 -214 22 -190z" fill="url(#${hid})" ${OL}/>
-      <path d="M-18 -194H22V-189H-18z" fill="#b8302b" ${ol}/>
-      <path d="M-40 -188q-4 4 -2 6M44 -188q4 4 2 6" stroke="#3b2214" stroke-width="1.2" fill="none"/>`;
+    hatSvg = `<ellipse cx="0" cy="-180" rx="46" ry="9" fill="${shade(hatC, 1.1)}" ${OL}/>
+      <path d="M-20 -182Q-20 -208 0 -208Q20 -208 20 -182z" fill="url(#${hid})" ${OL}/>
+      <path d="M-20 -188H20V-182H-20z" fill="#b8302b" ${ol}/>
+      <path d="M-44 -180q-4 4 -2 6M44 -180q4 4 2 6" stroke="#3b2214" stroke-width="1.2" fill="none"/>`;
   } else if (hat === 'scarf') {
-    hatSvg = `<path d="M-23 -166Q-26 -206 2 -205Q30 -206 25 -166Q22 -186 2 -187Q-18 -186 -23 -166z" fill="url(#${hid})" ${OL}/>
-      <path d="M-14 -155L-6 -138L0 -152z" fill="${hatC}" ${OL}/><path d="M-18 -190q6 -8 14 -10" stroke="${shade(hatC, 1.4)}" stroke-width="2" fill="none"/>`;
+    hatSvg = `<path d="M-24 -166Q-27 -204 0 -203Q27 -204 24 -166Q22 -186 0 -187Q-22 -186 -24 -166z" fill="url(#${hid})" ${OL}/>
+      <path d="M-22 -172L-30 -152L-20 -158z" fill="${hatC}" ${OL}/><path d="M-14 -190q8 -9 18 -9" stroke="${shade(hatC, 1.4)}" stroke-width="2" fill="none"/>`;
   }
 
   /* --- obličej --- */
   const browsKind = o.brows ?? 'normal';
   const brows =
     browsKind === 'sad'
-      ? 'M-3 -181Q4 -184 12 -188M14 -188Q20 -184 25 -181'
+      ? 'M-16 -171Q-9 -175 -3 -179M3 -179Q9 -175 16 -171'
       : browsKind === 'angry'
-        ? 'M-3 -188Q4 -186 12 -181M14 -181Q20 -186 25 -188'
-        : 'M-3 -184Q4 -189 12 -184M14 -183Q20 -187 25 -183';
+        ? 'M-16 -179Q-9 -175 -3 -171M3 -171Q9 -175 16 -179'
+        : 'M-16 -174Q-9.5 -180 -3 -174M3 -174Q9.5 -180 16 -174';
   const mouthKind = o.mouth ?? 'smile';
   const mouth =
     mouthKind === 'flat'
-      ? `<path d="M10 -146H26" stroke="#8a3a2a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`
+      ? `<path d="M-6 -133H6" stroke="#8a3a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
       : mouthKind === 'open'
-        ? `<ellipse cx="18" cy="-146" rx="5.5" ry="4.5" fill="#7a2a22" ${ol}/><path d="M13 -148.5h10" stroke="#fff" stroke-width="2"/>`
+        ? `<ellipse cx="0" cy="-133" rx="3.4" ry="3" fill="#6a2018" ${ol}/><ellipse cx="0" cy="-134.4" rx="2" ry="1" fill="#e8b0a0" opacity=".7"/>`
         : mouthKind === 'frown'
-          ? `<path d="M10 -143Q18 -150 26 -143" stroke="#8a3a2a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`
-          : `<path d="M10 -148Q18 -141 26 -148" stroke="#8a3a2a" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+          ? `<path d="M-6 -131Q0 -137 6 -131" stroke="#8a3a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>`
+          : `<path d="M-6.5 -135Q0 -129.5 6.5 -135" stroke="#8a3a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
   const bags = o.tired
-    ? `<path d="M-1 -164Q5 -161 11 -164M13 -164Q19 -161 25 -164" stroke="${shade(skin, 0.55)}" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-       <path d="M-1.5 -176.5Q5 -181 11.5 -176.5L11.5 -174Q5 -178 -1.5 -174z" fill="${shade(skin, 0.9)}" opacity=".9"/>`
+    ? `<path d="M-14.5 -158Q-9.5 -155 -4.5 -158M4.5 -158Q9.5 -155 14.5 -158" stroke="${shade(skin, 0.55)}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
     : '';
   const stubble = o.stubble
-    ? `<path d="M-15 -160Q2 -138 21 -154Q23 -148 12 -142Q0 -137 -12 -146z" fill="#4a3a2a" opacity=".38"/>
-       ${rep(14, (i) => `<circle cx="${-10 + (i % 7) * 4.2}" cy="${-150 + Math.floor(i / 7) * 5 + (i % 3)}" r=".8" fill="#2a1a10" opacity=".6"/>`)}`
+    ? `<path d="M-17 -156Q-19 -140 -8 -132Q0 -126 8 -132Q19 -140 17 -156Q14 -142 0 -140Q-14 -142 -17 -156z" fill="#4a3a2a" opacity=".36"/>
+       ${rep(14, (i) => `<circle cx="${-10 + (i % 7) * 3.4}" cy="${-138 + Math.floor(i / 7) * 5 + (i % 3)}" r=".8" fill="#2a1a10" opacity=".6"/>`)}`
     : '';
   const beard = o.beard
-    ? `<path d="M-19 -164Q-18 -134 4 -130Q26 -134 22 -158Q16 -146 4 -145Q-10 -146 -19 -164z" fill="${hair}" ${OL}/>`
+    ? `<path d="M-20 -160Q-21 -130 0 -124Q21 -130 20 -160Q14 -144 0 -144Q-14 -144 -20 -160z" fill="${hair}" ${OL}/>`
     : '';
   const glasses = o.glasses
-    ? `<circle cx="5" cy="-173" r="9.4" fill="#cfe8f0" opacity=".25" stroke="#2a2a2a" stroke-width="1.8"/><circle cx="19.4" cy="-173" r="8.6" fill="#cfe8f0" opacity=".25" stroke="#2a2a2a" stroke-width="1.8"/><path d="M14.4 -173H10.8M-4.4 -174L-17 -171" stroke="#2a2a2a" stroke-width="1.6"/>`
+    ? `<circle cx="-9.5" cy="-165" r="8.6" fill="#cfe8f0" opacity=".25" stroke="#2a2a2a" stroke-width="1.7"/><circle cx="9.5" cy="-165" r="8.6" fill="#cfe8f0" opacity=".25" stroke="#2a2a2a" stroke-width="1.7"/><path d="M-0.9 -166Q0 -168 0.9 -166M-18 -166L-22 -168M18 -166L22 -168" stroke="#2a2a2a" stroke-width="1.5" fill="none"/>`
     : '';
   const mus = o.mustache
-    ? `<path d="M7 -153Q21 -163 38 -153Q36 -147 22 -151Q10 -146 7 -153z" fill="${hairD}" ${ol}/>`
+    ? `<path d="M0 -139Q8 -145 16 -138Q14 -133 6 -137Q0 -135 0 -139Q0 -135 -6 -137Q-14 -133 -16 -138Q-8 -145 0 -139z" fill="${hairD}" ${ol}/>`
     : '';
-  const collar = o.collarUp
-    ? `<path d="M-20 -146L-10 -158L-3 -146zM20 -146L12 -158L4 -146z" fill="${shade(coat, 1.05)}" ${OL}/>`
-    : '';
-  const medals = o.medals
-    ? `${rep(3, (i) => `<circle cx="${6 + i * 9}" cy="${-120 + (i % 2) * 2}" r="3.8" fill="${['#e8c14a', '#c23b3b', '#e8c14a'][i]}" ${ol}/>`)}<path d="M-26 -140L-10 -140" stroke="#e8c14a" stroke-width="5" stroke-linecap="round"/>`
-    : '';
+  const eye = (x: number): string =>
+    `<ellipse cx="${x}" cy="-165" rx="7" ry="7.6" fill="#dcdad6" ${ol}/>
+     <circle cx="${x}" cy="-164" r="3.7" fill="${eyeC}"/><circle cx="${x}" cy="-164" r="1.8" fill="#140a05"/><circle cx="${x + 1.3}" cy="-166" r="1" fill="#fff" opacity=".85"/>
+     <path d="M${x - 6.6} -166Q${x} -176 ${x + 6.6} -166Q${x} -169.5 ${x - 6.6} -166z" fill="${skinD}"/>`;
 
-  /* --- tělo: kabát nebo šaty --- */
+  /* --- tělo --- */
+  const belt = o.dress ? '' : `<rect x="${-hw}" y="-64" width="${hw * 2}" height="7" fill="#14141a" ${ol}/><rect x="-4" y="-64" width="8" height="7" fill="#b8b8c0" ${ol}/>`;
   const legs = o.dress
-    ? `<path d="M-12 -52L-11 -9H-3L-3 -52z" fill="url(#${skg})" ${OL}/><path d="M5 -52L5 -9H13L12 -52z" fill="url(#${skg})" ${OL}/>
-       <path d="M-12 -22H-3M5 -22H13" stroke="#e8e8e8" stroke-width="5"/>`
-    : `<path d="M-17 -64L-16 -9H-3L-2 -64z" fill="url(#${pg})" ${OL}/>
-       <path d="M3 -64L4 -9H18L17 -64z" fill="url(#${pg})" ${OL}/>
-       <path d="M-16 -40Q-9 -36 -3 -40M4 -40Q11 -36 17 -40" stroke="${shade(pants, 0.55)}" stroke-width="1.4" fill="none" opacity=".6"/>`;
+    ? `<path d="M-12 -46L-11 -9H-3L-3 -46z" fill="url(#${skg})" ${OL}/><path d="M3 -46L3 -9H11L12 -46z" fill="url(#${skg})" ${OL}/>
+       <path d="M-12 -22H-3M3 -22H12" stroke="#e8e8e8" stroke-width="5"/>
+       <path d="M${-hw + 2} -82L${-hw - 8} -44H${hw + 8}L${hw - 2} -82z" fill="url(#${gid})" ${OL}/>`
+    : `<path d="M-16 -60L-15 -9H-2L-1 -60z" fill="url(#${pg})" ${OL}/>
+       <path d="M1 -60L2 -9H15L16 -60z" fill="url(#${pg})" ${OL}/>
+       <path d="M-15 -36Q-8 -33 -2 -36M2 -36Q9 -33 15 -36" stroke="${shade(pants, 0.55)}" stroke-width="1.3" fill="none" opacity=".6"/>`;
+  const shoes = `<path d="M-18 -10H-2Q0 -2 -3 0H-21Q-24 -3 -18 -10z" fill="#17171c" ${OL}/><path d="M-17 -7H-8" stroke="#fff" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M2 -10H18Q24 -3 21 0H3Q0 -2 2 -10z" fill="#101014" ${OL}/><path d="M4 -7H12" stroke="#fff" stroke-opacity=".4" stroke-width="1.5" stroke-linecap="round"/>`;
+  const yE = shortSl ? -92 : -72;
+  const arm = (sg: number): string => {
+    const xo = sg * (hw + 10);
+    const xi = sg * (hw - 3);
+    const sleeve = `<path d="M${sg * (hw + 1)} -119Q${xo + sg * 2} -108 ${xo} ${yE}L${xi + sg * 1} ${yE}Q${sg * (hw - 2)} -106 ${sg * (hw - 6)} -116z" fill="url(#${gid})" ${OL}/>`;
+    const cuff = shortSl
+      ? `<path d="M${xo} ${yE - 4}L${xi + sg} ${yE - 4}L${xi + sg} ${yE + 1}L${xo} ${yE + 1}z" fill="${shade(coat, 1.15)}" ${ol}/>
+         <path d="M${xo - sg} ${yE + 1}L${xo - sg * 1.5} -72L${xi + sg * 2} -72L${xi + sg} ${yE + 1}z" fill="url(#${skg})" ${ol}/>`
+      : '';
+    return `${sleeve}${cuff}<circle cx="${(xo + xi) / 2}" cy="-67" r="6.2" fill="url(#${skg})" ${ol}/>`;
+  };
   const apron = o.apron
-    ? `<path d="M-12 -118L-17 -50H${bw - 6}L${bw - 12} -118z" fill="${o.apron}" ${OL}/><path d="M-12 -118L${bw - 12} -118" stroke="${shade(o.apron, 0.7)}" stroke-width="2"/>`
+    ? `<path d="M${-hw + 8} -112L${-hw + 4} -46H${hw - 4}L${hw - 8} -112z" fill="${o.apron}" ${OL}/><path d="M${-hw + 8} -112H${hw - 8}" stroke="${shade(o.apron, 0.7)}" stroke-width="2"/>`
     : '';
+  const pocket = o.pocket ?? (!o.dress && !o.apron)
+    ? `<path d="M7 -108H21V-92Q14 -89 7 -92z" fill="${coatD}" opacity=".6" ${ol}/><path d="M7 -108H21" stroke="${shade(coat, 1.3)}" stroke-width="1.2"/>`
+    : '';
+  const collarStyle = o.collarUp
+    ? `<path d="M-12 -122L-9 -140L-2 -126zM12 -122L9 -140L2 -126z" fill="${shade(coat, 1.05)}" ${OL}/>`
+    : `<path d="M-10 -124L-6 -134L-1 -130L-1 -121zM10 -124L6 -134L1 -130L1 -121z" fill="${shade(coat, 1.12)}" ${ol}/>`;
   const shirtTie = o.dress
-    ? `<path d="M-9 -146Q0 -136 9 -146" stroke="${shade(coat, 0.6)}" stroke-width="2" fill="none"/>`
-    : `<path d="M-8 -146L0 -126L8 -146z" fill="#f4f2ea" ${ol}/>${
-        o.tie ? `<path d="M-2 -138H3L5 -104L0 -98L-5 -104z" fill="${o.tie}" ${ol}/>` : ''
-      }`;
+    ? `<path d="M-9 -121Q0 -112 9 -121" stroke="${shade(coat, 0.6)}" stroke-width="2" fill="none"/>`
+    : `${o.tie ? `<path d="M-8 -124L0 -106L8 -124z" fill="#f4f2ea" ${ol}/><path d="M-2 -118H3L5 -84L0 -78L-5 -84z" fill="${o.tie}" ${ol}/>` : ''}`;
+  const buttons = o.dress || o.tie ? '' : rep(3, (i) => `<circle cx="0" cy="${-108 + i * 16}" r="1.9" fill="#a8a8b2" ${ol}/>`);
+  const medals = o.medals
+    ? `${rep(3, (i) => `<circle cx="${-14 + i * 9}" cy="${-100 + (i % 2) * 2}" r="3.8" fill="${['#e8c14a', '#c23b3b', '#e8c14a'][i]}" ${ol}/>`)}`
+    : '';
 
   return `
 <g transform="translate(${o.x} ${o.y}) scale(${o.flip ? -s : s} ${s})">
@@ -220,39 +248,39 @@ export function person(o: PersonOpts): string {
     ${grad(gid, coat, false, 1.25, 0.62)}
     ${grad(hid, hatC, true, 1.25, 0.75)}
     ${grad(pg, pants, false, 1.2, 0.6)}
-    <radialGradient id="${skg}" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="${shade(skin, 1.16)}"/><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin, 0.7)}"/></radialGradient>
-    <radialGradient id="${nsg}" cx=".3" cy=".3" r=".9"><stop offset="0" stop-color="${shade(noseCol, 1.18)}"/><stop offset="1" stop-color="${shade(noseCol, 0.78)}"/></radialGradient>
+    <radialGradient id="${skg}" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="${shade(skin, 1.14)}"/><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin, 0.7)}"/></radialGradient>
+    <radialGradient id="${nsg}" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="${shade(noseCol, 1.18)}"/><stop offset="1" stop-color="${shade(noseCol, 0.76)}"/></radialGradient>
   </defs>
-  <ellipse cx="0" cy="1" rx="${38 + belly * 0.6}" ry="6" fill="#000" opacity=".22"/>
+  <ellipse cx="0" cy="1" rx="${36 + belly * 0.6}" ry="6" fill="#000" opacity=".22"/>
   ${legs}
-  <path d="M-20 -9H-2Q0 -1 -3 0H-22Q-25 -2 -20 -9z" fill="#2a1a22" ${OL}/><path d="M-19 -7H-8" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M2 -9H20Q23 -1 19 0H0Q-1 -2 2 -9z" fill="#1e1218" ${OL}/><path d="M4 -7H14" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M-29 -140Q-44 -112 -39 -82L-30 -82Q-31 -108 -22 -130z" fill="${coatD}" ${OL}/>
-  <circle cx="-35" cy="-77" r="6" fill="url(#${skg})" ${ol}/>
-  <path d="M-20 -146Q${-(bl - 1)} -142 ${-(bl - 1)} -118L${-(bl + 2)} ${hemY}H${bw}L${bw - 2} -118Q${bw - 2} -142 20 -146z" fill="url(#${gid})" ${OL}/>
-  <path d="M0 -146V${hemY}" stroke="${coatD}" stroke-width="1.6"/>
+  ${shoes}
+  ${belt}
+  <path d="M${-hw + 3} -120Q${-hw - 3} -116 ${-hw - 2} -96L${-hw} ${hemY}H${hw}L${hw + 2} -96Q${hw + 3} -116 ${hw - 3} -120Q${hw / 2} -127 0 -124Q${-hw / 2} -127 ${-hw + 3} -120z" fill="url(#${gid})" ${OL}/>
+  <path d="M0 -122V${hemY}" stroke="${coatD}" stroke-width="1.4" opacity=".7"/>
+  ${arm(-1)}
+  ${arm(1)}
+  <rect x="-5" y="-136" width="10" height="14" fill="${skinD}"/>
   ${shirtTie}
-  ${collar}
-  ${o.dress ? '' : `<circle cx="-5" cy="-100" r="2" fill="${coatD}"/><circle cx="-5" cy="-84" r="2" fill="${coatD}"/>`}
+  ${collarStyle}
+  ${buttons}
+  ${pocket}
   ${medals}
   ${apron}
-  <path d="M26 -140Q41 -114 38 -86L29 -85Q30 -108 21 -130z" fill="url(#${gid})" ${OL}/>
-  <circle cx="34" cy="-80" r="6" fill="url(#${skg})" ${ol}/>
-  <rect x="-3" y="-152" width="8" height="12" fill="${skinD}"/>
-  <g transform="translate(0 -146) scale(${head}) translate(0 146)">
+  <g transform="translate(0 -124) scale(${head}) translate(0 124)">
     ${hairBack}
-    <ellipse cx="-17" cy="-167" rx="5" ry="7" fill="${skinD}" ${ol}/>
-    <ellipse cx="2" cy="-168" rx="21" ry="24" fill="url(#${skg})" ${OL}/>
-    <path d="M-12 -150Q2 -142 18 -150Q8 -138 -4 -142z" fill="${skinD}" opacity=".5"/>
+    <ellipse cx="-22" cy="-158" rx="6.5" ry="10" fill="${skinD}" ${ol}/><ellipse cx="-22" cy="-158" rx="3" ry="6" fill="${shade(skin, 0.62)}" opacity=".55"/>
+    <ellipse cx="22" cy="-158" rx="6.5" ry="10" fill="${skinD}" ${ol}/><ellipse cx="22" cy="-158" rx="3" ry="6" fill="${shade(skin, 0.62)}" opacity=".55"/>
+    <path d="M-19 -172Q-22 -150 -13 -140Q-6 -129 0 -128Q6 -129 13 -140Q22 -150 19 -172Q0 -182 -19 -172z" fill="url(#${skg})" ${OL}/>
+    <path d="M-13 -140Q-6 -129 0 -128Q6 -129 13 -140Q4 -132 0 -133Q-4 -132 -13 -140z" fill="${skinD}" opacity=".5"/>
     ${stubble}
     ${beard}
-    <path d="M18 -170Q${18 + 18 * nose} -168 ${17 + 16 * nose} -157Q${12 + 10 * nose} -152 17 -156z" fill="url(#${nsg})" ${OL}/>
-    <circle cx="${27 + 4 * nose}" cy="-157" r="1.6" fill="#7a3a2a"/>
-    <ellipse cx="5" cy="-173" rx="6.8" ry="8" fill="#fff" ${ol}/>
-    <ellipse cx="19" cy="-173" rx="5.6" ry="7.6" fill="#fff" ${ol}/>
-    <circle cx="8.2" cy="-171" r="3.2" fill="${eyeC}"/><circle cx="8.4" cy="-171" r="1.5" fill="#111"/>
-    <circle cx="21.2" cy="-171" r="2.8" fill="${eyeC}"/><circle cx="21.4" cy="-171" r="1.3" fill="#111"/>
-    <path d="M-1.8 -173.5Q5 -182 11.8 -173.5z" fill="${skinD}"/><path d="M13.4 -173.5Q19.5 -181.6 25.6 -173.5z" fill="${skinD}"/>
+    <circle cx="${-5.5 * n}" cy="-143" r="${5.2 * n}" fill="url(#${nsg})" ${OL}/>
+    <circle cx="${5.5 * n}" cy="-143" r="${5.2 * n}" fill="url(#${nsg})" ${OL}/>
+    <ellipse cx="0" cy="-149" rx="${6.6 * n}" ry="${9.4 * n}" fill="url(#${nsg})" ${OL}/>
+    <ellipse cx="${-2.8 * n}" cy="-141.4" rx="1.4" ry="1" fill="#7a3a2a"/><ellipse cx="${2.8 * n}" cy="-141.4" rx="1.4" ry="1" fill="#7a3a2a"/>
+    <ellipse cx="${-1.6 * n}" cy="${-152 * 1}" rx="2" ry="3.2" fill="#fff" opacity=".25"/>
+    ${eye(-9.5)}
+    ${eye(9.5)}
     ${bags}
     ${glasses}
     <path d="${brows}" stroke="${hairD}" stroke-width="3" fill="none" stroke-linecap="round"/>
@@ -285,69 +313,30 @@ export function carpet(x0: number, x1: number, y0: number, y1: number, fill: str
 }
 
 /**
- * Patrik podle vzoru Pankráce z Poldy 1: hubený shrbený strážník z profilu,
- * tmavě šedá košile s krátkým rukávem, černé kalhoty a boty, ruce za zády,
- * kulatá čepice s dlouhým štítkem a obří nos. Hnědé vlasy i oči, žádný kabát.
+ * Patrik podle předlohy: čelní pohled, plochá tmavá čepice s kulatým znakem,
+ * hnědé vlasy i oči, velký bulvovitý nos, velké uši, tmavě šedá košile
+ * s náprsní kapsou a vyhrnutým rukávem.
  */
 export function pankrac(x: number, y: number, s = 1, flip = false): string {
-  const g = nid('pk');
-  const pt = nid('pp');
-  const sk = nid('ps');
-  const cp = nid('pc');
-  const skin = '#f0a070';
-  const hair = '#6a3a18';
-  return `
-<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">
-  <defs>
-    ${grad(g, '#5a5a64', false, 1.3, 0.55)}
-    ${grad(pt, '#363640', false, 1.35, 0.5)}
-    ${grad(cp, '#50505a', true, 1.3, 0.6)}
-    <radialGradient id="${sk}" cx=".35" cy=".3" r=".95"><stop offset="0" stop-color="${shade(skin, 1.18)}"/><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin, 0.66)}"/></radialGradient>
-  </defs>
-  <ellipse cx="8" cy="1" rx="42" ry="6" fill="#000" opacity=".24"/>
-  <!-- zadní noha a bota -->
-  <path d="M-14 -90L4 -90L2 -48L-2 -11L-17 -11L-12 -48z" fill="url(#${pt})" ${OL}/>
-  <path d="M-21 -12H-5Q6 -12 9 -4Q9 0 5 0H-25Q-29 -5 -21 -12z" fill="#17171c" ${OL}/><path d="M-19 -9H-8" stroke="#fff" stroke-opacity=".35" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- přední noha a bota -->
-  <path d="M-4 -90L16 -90L24 -48L24 -11L9 -11L6 -48z" fill="url(#${pt})" ${OL}/>
-  <path d="M6 -12H25Q38 -10 42 -3Q42 0 38 0H3Q-1 -5 6 -12z" fill="#101014" ${OL}/><path d="M9 -9H22" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/>
-  <!-- trup (předkloněný) -->
-  <g transform="rotate(17 0 -88)">
-    <path d="M-16 -88L18 -88L20 -116Q23 -134 12 -141L-12 -141Q-21 -131 -18 -112z" fill="url(#${g})" ${OL}/>
-    <rect x="-17" y="-93" width="37" height="6.5" fill="#101014" ${ol}/><rect x="-3" y="-93" width="8" height="6.5" fill="#b8b8c0" ${ol}/>
-    <path d="M2 -138L2 -94" stroke="#2a2a32" stroke-width="1.4" opacity=".7"/>
-    <rect x="6" y="-128" width="10" height="9" fill="#2a2a32" opacity=".45"/>
-    <path d="M-9 -141L-2 -131L5 -141z" fill="#6a6a74" ${ol}/>
-  </g>
-  <!-- paže za zády -->
-  <path d="M14 -136Q0 -134 -4 -118L8 -114Q8 -124 18 -128z" fill="url(#${g})" ${OL}/>
-  <path d="M-4 -118L-10 -98L-2 -95L8 -114z" fill="url(#${sk})" ${ol}/>
-  <circle cx="-8" cy="-94" r="5" fill="url(#${sk})" ${ol}/>
-  <!-- krk -->
-  <path d="M17 -138L28 -160L38 -155L30 -134z" fill="${shade(skin, 0.82)}" ${ol}/>
-  <!-- hlava -->
-  <g transform="translate(34 -172) rotate(9)">
-    <path d="M-17 -4Q-21 10 -11 18L-6 8Q-11 2 -9 -8z" fill="${hair}" ${ol}/>
-    <ellipse cx="-9" cy="2" rx="4.4" ry="6.4" fill="${shade(skin, 0.86)}" ${ol}/>
-    <ellipse cx="2" cy="1" rx="18" ry="21" fill="url(#${sk})" ${OL}/>
-    <path d="M12 12Q22 22 8 25Q-2 25 -6 16Q4 22 12 12z" fill="${shade(skin, 0.8)}" opacity=".7"/>
-    <path d="M14 -3Q36 -1 37 12Q35 22 24 20Q18 18 16 12z" fill="url(#${sk})" ${OL}/>
-    <circle cx="30" cy="15" r="1.7" fill="#7a3a2a"/>
-    <ellipse cx="8" cy="-6" rx="6.6" ry="7.4" fill="#fff" ${ol}/>
-    <circle cx="10.4" cy="-5" r="3.5" fill="#5a3015"/><circle cx="10.8" cy="-5" r="1.6" fill="#120804"/>
-    <path d="M1.4 -7.5Q8 -14 14.6 -7.5z" fill="${shade(skin, 0.88)}"/>
-    <path d="M1 -14Q8 -18 15 -13" stroke="${hair}" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <path d="M12 17Q19 21 25 16" stroke="#8a3a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <!-- čepice -->
-    <g transform="rotate(-4 2 -16)">
-      <path d="M-20 -14Q-23 -37 2 -40Q27 -37 23 -14z" fill="url(#${cp})" ${OL}/>
-      <path d="M-22 -19Q2 -12 25 -19L25 -11Q2 -4 -22 -11z" fill="#2a2a32" ${ol}/>
-      <path d="M12 -13Q38 -17 52 -10Q36 -5 10 -8z" fill="#101014" ${OL}/>
-      <path d="M-16 -30Q2 -37 18 -30" stroke="#8a8a96" stroke-width="2" fill="none" opacity=".6"/>
-      <circle cx="6" cy="-24" r="4.6" fill="#c8c8d0" ${ol}/><circle cx="6" cy="-24" r="1.8" fill="#8a8a96"/>
-    </g>
-  </g>
-</g>`;
+  return person({
+    x,
+    y,
+    s,
+    flip,
+    skin: '#e58d4c',
+    hair: '#7a3a1a',
+    eyes: '#6a3018',
+    coat: '#4e4e56',
+    pants: '#2e2e36',
+    hat: 'police',
+    hatColor: '#34343c',
+    nose: 1.1,
+    head: 1.3,
+    sleeves: 'short',
+    pocket: true,
+    brows: 'normal',
+    mouth: 'open',
+  });
 }
 
 /** Hlavní postava (zachován původní název pro scény). */
