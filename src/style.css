@@ -207,6 +207,19 @@ canvas.pixel { image-rendering: auto; object-fit: cover; }
   flex-direction: column;
   gap: .35rem;
 }
+.portrait {
+  position: absolute;
+  left: 1rem;
+  bottom: 100%;
+  height: clamp(8rem, 38vh, 17rem);
+  width: auto;
+  display: none;
+  z-index: 7;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 3px 0 #2a0608);
+}
+.bar.portrait-on .portrait { display: block; }
 .status {
   min-height: 1.2rem;
   font-size: clamp(.72rem, 1.4vw, .9rem);

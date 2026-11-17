@@ -118,6 +118,7 @@ export class Engine implements Game {
   private who = h('div', 'who');
   private msg = h('p', 'msg');
   private more = h('span', 'more', '▼');
+  private portrait = document.createElement('img');
   private choices = h('div', 'choices');
   private status = h('div', 'status');
   private verbsEl = h('div', 'verbs');
@@ -164,7 +165,10 @@ export class Engine implements Game {
 
     const text = h('div', 'text');
     text.append(this.who, this.msg, this.more, this.choices);
-    this.bar.append(this.status, text, ctrl);
+    this.portrait.src = `${import.meta.env.BASE_URL}img/patrik-portret.png`;
+    this.portrait.alt = '';
+    this.portrait.draggable = false;
+    this.bar.append(this.portrait, this.status, text, ctrl);
     this.screen.append(stage, top, this.bar);
 
     this.shield.onclick = () => this.advance();
@@ -504,7 +508,7 @@ export class Engine implements Game {
     this.msg.textContent = '';
     this.more.style.display = 'none';
     this.choices.replaceChildren();
-    this.bar.classList.remove('talking');
+    this.bar.classList.remove('talking', 'portrait-on');
   }
 
   private stopTyping(): void {
@@ -522,6 +526,7 @@ export class Engine implements Game {
     const sp = speakers[l.who];
     this.who.textContent = sp.name;
     this.who.style.display = sp.name ? '' : 'none';
+    this.bar.classList.toggle('portrait-on', l.who === 'karel' && !l.silent);
     this.msg.className = 'msg' + (sp.name ? '' : ' narr');
     this.more.style.display = 'none';
 
@@ -566,6 +571,7 @@ export class Engine implements Game {
     this.stopTyping();
     this.msg.textContent = '';
     this.who.style.display = 'none';
+    this.bar.classList.remove('portrait-on');
     this.more.style.display = 'none';
     this.choices.replaceChildren();
     opts.forEach((o, i) => {
